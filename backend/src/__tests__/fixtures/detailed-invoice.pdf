@@ -1,0 +1,113 @@
+%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Contents 4 0 R
+/Resources <<
+  /Font <<
+    /F1 5 0 R
+    /F2 6 0 R
+  >>
+>>
+>>
+endobj
+
+4 0 obj
+<<
+/Length 400
+>>
+stream
+BT
+/F2 16 Tf
+50 750 Td
+(INVOICE) Tj
+/F1 12 Tf
+0 -30 Td
+(Invoice Number: INV-2024-001) Tj
+0 -20 Td
+(Date: January 15, 2024) Tj
+0 -20 Td
+(Due Date: February 15, 2024) Tj
+0 -40 Td
+(Bill To:) Tj
+0 -20 Td
+(Test Customer Inc.) Tj
+0 -15 Td
+(123 Customer Street) Tj
+0 -15 Td
+(Customer City, CC 12345) Tj
+0 -40 Td
+(From:) Tj
+0 -20 Td
+(Test Vendor LLC) Tj
+0 -15 Td
+(456 Vendor Avenue) Tj
+0 -15 Td
+(Vendor City, VC 67890) Tj
+0 -40 Td
+(Description: Professional Services) Tj
+0 -20 Td
+(Quantity: 10 hours) Tj
+0 -20 Td
+(Rate: $100.00/hour) Tj
+0 -20 Td
+(Subtotal: $1,000.00) Tj
+0 -20 Td
+(Tax (8.5%): $85.00) Tj
+/F2 12 Tf
+0 -20 Td
+(Total: $1,085.00) Tj
+ET
+endstream
+endobj
+
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+
+6 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+>>
+endobj
+
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000295 00000 n 
+0000000747 00000 n 
+0000000844 00000 n 
+trailer
+<<
+/Size 7
+/Root 1 0 R
+>>
+startxref
+946
+%%EOF

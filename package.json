@@ -1,0 +1,66 @@
+{
+  "name": "syntaxis-ai",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "test": "npm run test --workspaces",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "type-check": "tsc --noEmit",
+    "validate": "npm run lint && npm run format:check && npm run type-check",
+    "setup:dev": "chmod +x scripts/setup-dev.sh && ./scripts/setup-dev.sh",
+    "setup:dependencies": "node scripts/setup-dependencies.js",
+    "setup:dependencies:backend": "node scripts/setup-dependencies.js --task=backend",
+    "setup:dependencies:frontend": "node scripts/setup-dependencies.js --task=frontend",
+    "setup:dependencies:root": "node scripts/setup-dependencies.js --task=root",
+    "setup:dependencies:env": "node scripts/setup-dependencies.js --task=env",
+    "setup:dependencies:migrations": "node scripts/setup-dependencies.js --task=migrations",
+    "setup:test": "node scripts/setup-test.js",
+    "setup:test:backend": "node scripts/setup-test.js --workspace=backend",
+    "setup:test:frontend": "node scripts/setup-test.js --workspace=frontend",
+    "test:dependencies": "cd backend && npm run test -- --testPathPattern=dependency-setup",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "eslint-plugin-security": "^1.7.1",
+    "eslint-plugin-sonarjs": "^0.23.0",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+} 

@@ -1,0 +1,54 @@
+export enum ErrorCode {
+  // File Upload Errors
+  PDF_CORRUPT = 'PDF_CORRUPT',
+  FILE_TOO_LARGE = 'FILE_TOO_LARGE',
+  INVALID_FILE_TYPE = 'INVALID_FILE_TYPE',
+  UPLOAD_FAILED = 'UPLOAD_FAILED',
+
+  // Template Errors
+  TEMPLATE_MISMATCH = 'TEMPLATE_MISMATCH',
+  TEMPLATE_INVALID = 'TEMPLATE_INVALID',
+  TEMPLATE_NOT_FOUND = 'TEMPLATE_NOT_FOUND',
+
+  // Authentication Errors
+  AUTH_REQUIRED = 'AUTH_REQUIRED',
+  AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  SESSION_EXPIRED = 'SESSION_EXPIRED',
+  LICENSE_EXPIRED = 'LICENSE_EXPIRED',
+  DEVICE_CONFLICT = 'DEVICE_CONFLICT',
+
+  // Export Errors
+  EXPORT_FAILED = 'EXPORT_FAILED',
+  EXPORT_TIMEOUT = 'EXPORT_TIMEOUT',
+  EXPORT_INVALID_FORMAT = 'EXPORT_INVALID_FORMAT',
+
+  // System Errors
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  TIMEOUT_ERROR = 'TIMEOUT_ERROR',
+  SERVER_ERROR = 'SERVER_ERROR',
+  CLIENT_ERROR = 'CLIENT_ERROR',
+  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+}
+
+export interface ErrorResponse {
+  error: {
+    code: ErrorCode;
+    userMessage: string;
+    nextSteps: string;
+    helpUrl: string;
+    logId?: string;
+  };
+}
+
+export interface ErrorState {
+  code: ErrorCode;
+  userMessage: string;
+  nextSteps: string;
+  helpUrl: string;
+  logId?: string;
+  isVisible: boolean;
+} 

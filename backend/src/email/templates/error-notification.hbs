@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .error-icon {
+      color: #f44336;
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    .error-details {
+      background-color: #fff3f3;
+      padding: 20px;
+      border-radius: 4px;
+      margin: 20px 0;
+      border: 1px solid #ffcdd2;
+    }
+    .error-message {
+      color: #f44336;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #2196F3;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .support-info {
+      background-color: #e3f2fd;
+      padding: 20px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="error-icon">⚠</div>
+    <h2>Invoice Processing Error</h2>
+  </div>
+
+  <p>We encountered an issue while processing your invoice. Here are the details:</p>
+  
+  <div class="error-details">
+    <div class="error-message">{{errorMessage}}</div>
+    <p><strong>Invoice Number:</strong> {{invoiceNumber}}</p>
+  </div>
+
+  <div class="support-info">
+    <h3>Need Help?</h3>
+    <p>Our support team is ready to assist you with this issue. You can:</p>
+    <ul>
+      <li>Contact our support team through the help center</li>
+      <li>Reply to this email with any additional information</li>
+      <li>Check our troubleshooting guide for common issues</li>
+    </ul>
+  </div>
+
+  <a href="{{supportLink}}" class="button">Get Support</a>
+  
+  <p>We apologize for any inconvenience this may have caused. Our team is working to resolve this issue as quickly as possible.</p>
+  
+  <div class="footer">
+    <p>This is an automated message, please do not reply to this email.</p>
+    <p>&copy; {{currentYear}} SyntaxisAI. All rights reserved.</p>
+  </div>
+</body>
+</html> 

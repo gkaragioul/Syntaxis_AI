@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests with coverage
+        run: npm run test --workspaces -- --coverage
+      - name: Enforce global coverage threshold
+        run: |
+          if [ -f backend/coverage/coverage-summary.json ]; then
+            lines=$(jq '.total.lines.pct' backend/coverage/coverage-summary.json)
+            if (( $(echo "$lines < 95" | bc -l) )); then
+              echo "::error::Coverage below threshold: $lines% (expected 95%)"
+              exit 1
+            fi
+          fi 
