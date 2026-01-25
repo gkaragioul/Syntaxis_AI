@@ -1,0 +1,256 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: syntaxis-ocr-config
+  namespace: staging
+  labels:
+    app: syntaxis-ocr
+    environment: staging
+data:
+  # Application Configuration
+  log-level: "debug"
+  max-file-size: "100MB"
+  supported-formats: "jpg,jpeg,png,pdf,tiff,bmp,webp"
+  
+  # Rate Limiting Configuration
+  rate-limit-window: "900000"  # 15 minutes in milliseconds
+  rate-limit-max-requests: "100"
+  rate-limit-skip-successful: "false"
+  
+  # OCR Engine Configuration
+  default-ocr-engine: "google-vision"
+  fallback-engines: "tesseract,aws-textract"
+  ocr-timeout: "30000"  # 30 seconds
+  ocr-retry-attempts: "3"
+  ocr-retry-delay: "1000"  # 1 second
+  
+  # Performance Configuration
+  max-concurrent-requests: "50"
+  request-timeout: "60000"  # 60 seconds
+  keep-alive-timeout: "5000"  # 5 seconds
+  body-parser-limit: "100mb"
+  
+  # Cache Configuration
+  cache-ttl: "3600"  # 1 hour
+  cache-max-size: "1000"
+  cache-enabled: "true"
+  
+  # File Processing Configuration
+  temp-dir: "/tmp/uploads"
+  cleanup-interval: "300000"  # 5 minutes
+  max-temp-files: "1000"
+  
+  # Monitoring Configuration
+  metrics-enabled: "true"
+  metrics-port: "9090"
+  metrics-path: "/metrics"
+  health-check-interval: "30000"  # 30 seconds
+  
+  # Security Configuration
+  cors-enabled: "true"
+  cors-origin: "https://staging-app.syntaxis.ai"
+  helmet-enabled: "true"
+  trust-proxy: "true"
+  
+  # Database Configuration
+  db-pool-min: "5"
+  db-pool-max: "20"
+  db-idle-timeout: "30000"
+  db-connection-timeout: "5000"
+  
+  # Redis Configuration
+  redis-pool-min: "5"
+  redis-pool-max: "20"
+  redis-retry-attempts: "3"
+  redis-retry-delay: "1000"
+  
+  # External Services Configuration
+  google-vision-timeout: "30000"
+  aws-textract-timeout: "30000"
+  tesseract-timeout: "30000"
+  
+  # Feature Flags
+  enable-batch-processing: "true"
+  enable-async-processing: "true"
+  enable-webhook-notifications: "true"
+  enable-audit-logging: "true"
+  enable-performance-monitoring: "true"
+  enable-error-tracking: "true"
+  
+  # Staging Specific Configuration
+  debug-mode: "true"
+  verbose-logging: "true"
+  enable-test-endpoints: "true"
+  mock-external-services: "false"
+  
+  # Application Metadata
+  app-name: "SyntaxisAI OCR Service"
+  app-version: "1.0.0"
+  environment: "staging"
+  deployment-timestamp: "2024-01-01T00:00:00Z"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: staging
+  labels:
+    app: syntaxis-ocr
+    environment: staging
+    component: nginx
+data:
+  nginx.conf: |
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+    
+    events {
+        worker_connections 1024;
+        use epoll;
+        multi_accept on;
+    }
+    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        
+        # Logging
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for" '
+                        'rt=$request_time uct="$upstream_connect_time" '
+                        'uht="$upstream_header_time" urt="$upstream_response_time"';
+        
+        access_log /var/log/nginx/access.log main;
+        
+        # Performance
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        client_max_body_size 100m;
+        
+        # Gzip
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_types
+            text/plain
+            text/css
+            text/xml
+            text/javascript
+            application/json
+            application/javascript
+            application/xml+rss
+            application/atom+xml
+            image/svg+xml;
+        
+        # Rate limiting
+        limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+        limit_req_zone $binary_remote_addr zone=upload:10m rate=2r/s;
+        
+        # Security headers
+        add_header X-Frame-Options DENY always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';" always;
+        
+        upstream backend {
+            least_conn;
+            server syntaxis-ocr-service:80 max_fails=3 fail_timeout=30s;
+            keepalive 32;
+        }
+        
+        server {
+            listen 80;
+            server_name staging-api.syntaxis.ai;
+            return 301 https://$server_name$request_uri;
+        }
+        
+        server {
+            listen 443 ssl http2;
+            server_name staging-api.syntaxis.ai;
+            
+            # SSL Configuration
+            ssl_certificate /etc/ssl/certs/tls.crt;
+            ssl_certificate_key /etc/ssl/private/tls.key;
+            ssl_protocols TLSv1.2 TLSv1.3;
+            ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+            ssl_prefer_server_ciphers off;
+            ssl_session_cache shared:SSL:10m;
+            ssl_session_timeout 10m;
+            
+            # HSTS
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+            
+            # Health check endpoint
+            location /health {
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 5s;
+                proxy_send_timeout 10s;
+                proxy_read_timeout 10s;
+            }
+            
+            # API endpoints with rate limiting
+            location /api/ {
+                limit_req zone=api burst=20 nodelay;
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 10s;
+                proxy_send_timeout 60s;
+                proxy_read_timeout 60s;
+                proxy_buffering off;
+            }
+            
+            # File upload endpoints with stricter rate limiting
+            location /api/v1/files/upload {
+                limit_req zone=upload burst=5 nodelay;
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 30s;
+                proxy_send_timeout 300s;
+                proxy_read_timeout 300s;
+                proxy_request_buffering off;
+                client_max_body_size 100m;
+            }
+            
+            # Metrics endpoint (internal only)
+            location /metrics {
+                allow 10.0.0.0/8;
+                allow 172.16.0.0/12;
+                allow 192.168.0.0/16;
+                deny all;
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+            
+            # Default location
+            location / {
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_connect_timeout 10s;
+                proxy_send_timeout 60s;
+                proxy_read_timeout 60s;
+            }
+        }
+    }

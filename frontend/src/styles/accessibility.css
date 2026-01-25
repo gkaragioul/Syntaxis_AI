@@ -1,0 +1,493 @@
+/* Accessibility Styles */
+
+/* High Contrast Mode */
+.high-contrast {
+  --bg-primary: #000000;
+  --bg-secondary: #ffffff;
+  --text-primary: #ffffff;
+  --text-secondary: #000000;
+  --border-color: #ffffff;
+  --focus-color: #ffff00;
+}
+
+.high-contrast * {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.high-contrast button,
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-secondary) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+.high-contrast :focus {
+  outline: 3px solid var(--focus-color) !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced Motion */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Font Size Variants */
+.font-small {
+  font-size: 14px;
+}
+
+.font-medium {
+  font-size: 16px;
+}
+
+.font-large {
+  font-size: 18px;
+}
+
+.font-extra-large {
+  font-size: 20px;
+}
+
+/* Screen Reader Mode */
+.screen-reader-mode {
+  --focus-width: 4px;
+}
+
+.screen-reader-mode :focus {
+  outline: var(--focus-width) solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* Focus Management */
+.focus-trap {
+  position: relative;
+}
+
+.focus-trap::before,
+.focus-trap::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 1000;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Keyboard Navigation */
+.keyboard-navigation :focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* Touch Targets */
+.touch-optimized button,
+.touch-optimized [role="button"],
+.touch-optimized input,
+.touch-optimized select {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px;
+}
+
+/* ARIA Live Regions */
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Loading States */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner.reduced-motion {
+  animation: none;
+}
+
+.loading-spinner-small {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.loading-spinner-medium {
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+}
+
+.loading-spinner-large {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.loading-spinner-primary {
+  border-color: transparent;
+  border-top-color: #1976d2;
+}
+
+.loading-spinner-secondary {
+  border-color: transparent;
+  border-top-color: #9c27b0;
+}
+
+/* Skeleton Loading */
+@keyframes skeleton-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.skeleton {
+  background-color: #e0e0e0;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-no-animation {
+  animation: none;
+}
+
+.skeleton-text {
+  border-radius: 4px;
+  height: 1em;
+}
+
+.skeleton-rectangular {
+  border-radius: 8px;
+}
+
+.skeleton-circular {
+  border-radius: 50%;
+}
+
+/* Progress Bar */
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.progress-bar {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-indeterminate .progress-bar-fill {
+  animation: progress-indeterminate 2s linear infinite;
+}
+
+.progress-default .progress-bar-fill {
+  background-color: #1976d2;
+}
+
+.progress-success .progress-bar-fill {
+  background-color: #4caf50;
+}
+
+.progress-warning .progress-bar-fill {
+  background-color: #ff9800;
+}
+
+.progress-error .progress-bar-fill {
+  background-color: #f44336;
+}
+
+/* Onboarding-Specific Accessibility Styles */
+
+/* Onboarding Dialog Accessibility */
+.onboarding-dialog {
+  position: relative;
+}
+
+.onboarding-dialog .MuiDialog-paper {
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.high-contrast .onboarding-dialog .MuiDialog-paper {
+  border: 3px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+/* Onboarding Stepper Accessibility */
+.onboarding-stepper {
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.high-contrast .onboarding-stepper {
+  background-color: var(--bg-secondary) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+.onboarding-stepper .MuiStepLabel-root {
+  cursor: default;
+}
+
+.onboarding-stepper .MuiStepLabel-root:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.high-contrast .onboarding-stepper .MuiStepLabel-root:focus {
+  outline: 3px solid var(--focus-color) !important;
+}
+
+/* Onboarding Step Content */
+.onboarding-step-content {
+  min-height: 400px;
+  padding: 24px;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.high-contrast .onboarding-step-content {
+  background-color: var(--bg-primary) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+.onboarding-step-content:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.high-contrast .onboarding-step-content:focus {
+  outline: 3px solid var(--focus-color) !important;
+}
+
+/* Onboarding Navigation Buttons */
+.onboarding-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.high-contrast .onboarding-nav-buttons {
+  border-top: 2px solid var(--border-color) !important;
+}
+
+.onboarding-nav-buttons .MuiButton-root {
+  min-height: 44px;
+  min-width: 88px;
+  font-weight: 600;
+}
+
+.onboarding-nav-buttons .MuiButton-root:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.high-contrast .onboarding-nav-buttons .MuiButton-root {
+  border: 2px solid var(--border-color) !important;
+}
+
+.high-contrast .onboarding-nav-buttons .MuiButton-root:focus {
+  outline: 3px solid var(--focus-color) !important;
+}
+
+/* Onboarding Progress Indicator */
+.onboarding-progress {
+  margin-bottom: 16px;
+}
+
+.onboarding-progress-text {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 8px;
+}
+
+.high-contrast .onboarding-progress-text {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Onboarding Error States */
+.onboarding-error {
+  margin-bottom: 16px;
+}
+
+.onboarding-error .MuiAlert-root {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.high-contrast .onboarding-error .MuiAlert-root {
+  border: 2px solid var(--border-color) !important;
+  background-color: #ff0000 !important;
+  color: #ffffff !important;
+}
+
+.onboarding-error .MuiAlert-action .MuiButton-root {
+  min-height: 36px;
+  font-weight: 600;
+}
+
+/* Onboarding Loading States */
+.onboarding-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.high-contrast .onboarding-loading-overlay {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: var(--text-primary) !important;
+}
+
+.onboarding-loading-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.high-contrast .onboarding-loading-content {
+  background: var(--bg-primary) !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+/* Onboarding Skip Link */
+.onboarding-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 16px;
+  background: #1976d2;
+  color: #ffffff;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  z-index: 1000;
+}
+
+.onboarding-skip-link:focus {
+  top: 16px;
+}
+
+.high-contrast .onboarding-skip-link {
+  background: var(--focus-color) !important;
+  color: var(--text-secondary) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+/* Onboarding Responsive Accessibility */
+@media (max-width: 600px) {
+  .onboarding-dialog .MuiDialog-paper {
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .onboarding-step-content {
+    padding: 16px;
+    min-height: 300px;
+  }
+
+  .onboarding-nav-buttons {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .onboarding-nav-buttons .MuiButton-root {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .onboarding-stepper {
+    padding: 12px;
+  }
+}
+
+/* Onboarding Touch Targets */
+@media (pointer: coarse) {
+  .onboarding-dialog .MuiButton-root {
+    min-height: 48px !important;
+    min-width: 48px !important;
+    padding: 12px 24px !important;
+  }
+
+  .onboarding-dialog .MuiIconButton-root {
+    min-height: 48px !important;
+    min-width: 48px !important;
+  }
+
+  .onboarding-stepper .MuiStepLabel-root {
+    min-height: 48px !important;
+    padding: 12px !important;
+  }
+}
+
+/* Onboarding Print Styles */
+@media print {
+  .onboarding-dialog {
+    position: static !important;
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background: #fff !important;
+  }
+
+  .onboarding-loading-overlay {
+    display: none !important;
+  }
+
+  .onboarding-nav-buttons .MuiButton-root {
+    border: 1px solid #000 !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "users": [
+    {
+      "id": "user-123",
+      "email": "test@example.com",
+      "role": "USER",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "admin-123",
+      "email": "admin@example.com",
+      "role": "ADMIN",
+      "status": "ACTIVE"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "inv-123",
+      "userId": "user-123",
+      "fileId": "file-123",
+      "vendor": "ABC Company",
+      "invoiceNumber": "INV-2023-001",
+      "amount": 1000.00,
+      "taxAmount": 100.00,
+      "date": "2023-01-01T00:00:00Z",
+      "dueDate": "2023-01-31T00:00:00Z",
+      "status": "PROCESSED",
+      "items": [
+        {
+          "description": "Product A",
+          "quantity": 2,
+          "unitPrice": 400.00,
+          "total": 800.00
+        },
+        {
+          "description": "Service B",
+          "quantity": 1,
+          "unitPrice": 200.00,
+          "total": 200.00
+        }
+      ]
+    },
+    {
+      "id": "inv-124",
+      "userId": "user-123",
+      "fileId": "file-124",
+      "vendor": "XYZ Corp",
+      "invoiceNumber": "INV-2023-002",
+      "amount": 2500.00,
+      "taxAmount": 250.00,
+      "date": "2023-01-15T00:00:00Z",
+      "dueDate": "2023-02-14T00:00:00Z",
+      "status": "PROCESSED",
+      "items": [
+        {
+          "description": "Product C",
+          "quantity": 5,
+          "unitPrice": 450.00,
+          "total": 2250.00
+        },
+        {
+          "description": "Service D",
+          "quantity": 1,
+          "unitPrice": 250.00,
+          "total": 250.00
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "template-123",
+      "userId": "user-123",
+      "name": "Standard Invoice Template",
+      "vendorName": "ABC Company",
+      "patterns": {
+        "vendor": ["From:", "Vendor:", "Supplier:"],
+        "invoiceNumber": ["Invoice #:", "Invoice Number:", "Bill #:"],
+        "totalAmount": ["Total Amount:", "Total:", "Amount Due:"],
+        "date": ["Date:", "Invoice Date:", "Issue Date:"],
+        "dueDate": ["Due Date:", "Payment Due:", "Due:"]
+      },
+      "fieldMappings": {
+        "vendor": { "type": "string", "required": true },
+        "invoiceNumber": { "type": "string", "required": true, "pattern": "^[A-Z0-9-]+$" },
+        "totalAmount": { "type": "number", "required": true, "min": 0 },
+        "date": { "type": "date", "required": true },
+        "dueDate": { "type": "date", "required": true }
+      },
+      "successRate": 0.95,
+      "usageCount": 100
+    }
+  ],
+  "validationRules": [
+    {
+      "id": "rule-123",
+      "name": "Amount Validation",
+      "type": "AMOUNT",
+      "conditions": {
+        "field": "amount",
+        "operator": ">",
+        "value": 0
+      },
+      "errorMessage": "Amount must be greater than 0"
+    },
+    {
+      "id": "rule-124",
+      "name": "Tax Amount Validation",
+      "type": "TAX",
+      "conditions": {
+        "field": "taxAmount",
+        "operator": "<=",
+        "value": "amount"
+      },
+      "errorMessage": "Tax amount cannot exceed total amount"
+    },
+    {
+      "id": "rule-125",
+      "name": "Date Validation",
+      "type": "DATE",
+      "conditions": {
+        "field": "dueDate",
+        "operator": ">",
+        "value": "date"
+      },
+      "errorMessage": "Due date must be after invoice date"
+    }
+  ],
+  "errorCases": [
+    {
+      "id": "error-123",
+      "type": "VALIDATION_ERROR",
+      "code": "INVALID_AMOUNT",
+      "message": "Amount must be greater than 0",
+      "details": {
+        "field": "amount",
+        "value": -100.00,
+        "rule": "rule-123"
+      }
+    },
+    {
+      "id": "error-124",
+      "type": "PROCESSING_ERROR",
+      "code": "OCR_FAILED",
+      "message": "OCR processing failed",
+      "details": {
+        "fileId": "file-123",
+        "error": "Failed to extract text from image",
+        "attempts": 3
+      }
+    },
+    {
+      "id": "error-125",
+      "type": "SYSTEM_ERROR",
+      "code": "DATABASE_ERROR",
+      "message": "Database connection failed",
+      "details": {
+        "operation": "create",
+        "table": "invoices",
+        "error": "Connection timeout"
+      }
+    }
+  ],
+  "testScenarios": {
+    "validInvoice": {
+      "description": "Standard invoice processing",
+      "input": {
+        "file": "valid-invoice.pdf",
+        "template": "template-123"
+      },
+      "expectedOutput": {
+        "status": "PROCESSED",
+        "confidence": 0.95,
+        "fields": {
+          "vendor": "ABC Company",
+          "invoiceNumber": "INV-2023-001",
+          "amount": 1000.00,
+          "taxAmount": 100.00,
+          "date": "2023-01-01",
+          "dueDate": "2023-01-31"
+        }
+      }
+    },
+    "invalidInvoice": {
+      "description": "Invoice with validation errors",
+      "input": {
+        "file": "invalid-invoice.pdf",
+        "template": "template-123"
+      },
+      "expectedOutput": {
+        "status": "VALIDATION_FAILED",
+        "errors": [
+          {
+            "field": "amount",
+            "error": "Amount must be greater than 0"
+          },
+          {
+            "field": "taxAmount",
+            "error": "Tax amount cannot exceed total amount"
+          }
+        ]
+      }
+    },
+    "batchProcessing": {
+      "description": "Batch invoice processing",
+      "input": {
+        "files": [
+          "valid-invoice.pdf",
+          "valid-invoice-2.pdf",
+          "valid-invoice-3.pdf"
+        ],
+        "template": "template-123",
+        "options": {
+          "priority": "high",
+          "notifyOnComplete": true
+        }
+      },
+      "expectedOutput": {
+        "status": "COMPLETED",
+        "processed": 3,
+        "failed": 0,
+        "results": [
+          {
+            "fileId": "file-123",
+            "status": "PROCESSED",
+            "confidence": 0.95
+          },
+          {
+            "fileId": "file-124",
+            "status": "PROCESSED",
+            "confidence": 0.92
+          },
+          {
+            "fileId": "file-125",
+            "status": "PROCESSED",
+            "confidence": 0.94
+          }
+        ]
+      }
+    }
+  }
+} 

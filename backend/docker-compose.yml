@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:password@database:5432/syntaxis_ai
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-that-should-be-at-least-32-characters-long
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your-email@gmail.com
+      EMAIL_PASS: your-app-password
+    depends_on:
+      - database
+      - redis
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - syntaxis-network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      REACT_APP_API_URL: http://backend:3000
+      NODE_ENV: development
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    networks:
+      - syntaxis-network
+
+  database:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: syntaxis_ai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - syntaxis-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - syntaxis-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  syntaxis-network:
+    driver: bridge

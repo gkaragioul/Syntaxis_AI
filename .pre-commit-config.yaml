@@ -1,0 +1,120 @@
+# Pre-commit hooks configuration for OCR System
+# TDD Phase: GREEN - Production-ready pre-commit configuration
+# Task: Set up pre-commit hooks for test validation
+
+repos:
+  # Local hooks for project-specific validation
+  - repo: local
+    hooks:
+      # Run Jest tests before commit
+      - id: run-tests
+        name: Run Jest Tests
+        entry: npm test
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        description: Execute all Jest tests to ensure code quality
+
+      # TypeScript linting
+      - id: lint-typescript
+        name: Lint TypeScript
+        entry: npm run lint
+        language: system
+        files: \.(ts|tsx)$
+        stages: [commit]
+        description: Run ESLint on TypeScript files
+
+      # TypeScript type checking
+      - id: type-check
+        name: TypeScript Type Check
+        entry: npm run type-check
+        language: system
+        files: \.(ts|tsx)$
+        stages: [commit]
+        description: Verify TypeScript type safety
+
+      # Coverage threshold validation
+      - id: coverage-check
+        name: Coverage Threshold Check
+        entry: npm run test:coverage
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        description: Ensure 95% test coverage is maintained
+
+      # Security audit
+      - id: security-audit
+        name: Security Audit
+        entry: npm audit --audit-level=moderate
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        description: Check for security vulnerabilities
+
+  # Pre-commit hooks repository for common utilities
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      # Prevent large files from being committed
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+        description: Prevent files larger than 1MB from being committed
+
+      # Check for merge conflicts
+      - id: check-merge-conflict
+        description: Check for merge conflict markers
+
+      # Validate JSON files
+      - id: check-json
+        description: Validate JSON file syntax
+
+      # Validate YAML files
+      - id: check-yaml
+        description: Validate YAML file syntax
+
+      # Check for private keys
+      - id: detect-private-key
+        description: Detect private keys in code
+
+      # Trim trailing whitespace
+      - id: trailing-whitespace
+        description: Remove trailing whitespace
+
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+        description: Ensure files end with a newline
+
+      # Check case conflicts
+      - id: check-case-conflict
+        description: Check for case conflicts in filenames
+
+  # Prettier for code formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        files: \.(ts|tsx|js|jsx|json|md|yaml|yml)$
+        exclude: |
+          (?x)^(
+              \.pre-commit-config\.yaml|
+              package-lock\.json|
+              .*\.min\.js
+          )$
+        description: Format code with Prettier
+
+# Global configuration
+fail_fast: true
+minimum_pre_commit_version: '2.15.0'
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

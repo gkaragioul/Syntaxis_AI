@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20  # Add overall job timeout
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: syntaxis_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:6
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        timeout-minutes: 5
+        run: npm ci
+
+      - name: Setup environment variables
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/syntaxis_test" >> $GITHUB_ENV
+          echo "DATABASE_TEST_URL=postgresql://postgres:postgres@localhost:5432/syntaxis_test" >> $GITHUB_ENV
+          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+          echo "REDIS_TEST_URL=redis://localhost:6379/1" >> $GITHUB_ENV
+          echo "NODE_ENV=test" >> $GITHUB_ENV
+
+      - name: Generate Prisma client
+        timeout-minutes: 2
+        run: |
+          cd backend
+          npx prisma generate
+
+      - name: Setup test database
+        timeout-minutes: 3
+        run: |
+          cd backend
+          npx prisma db push --force-reset --accept-data-loss
+
+      - name: Install frontend test dependencies
+        timeout-minutes: 2
+        run: |
+          cd frontend
+          npm install @vitest/coverage-v8 --save-dev
+
+      - name: Run backend tests with coverage
+        timeout-minutes: 4
+        run: |
+          cd backend
+          # Run only unit tests and essential integration tests in CI
+          timeout 240 npm run test:ci
+
+      - name: Run frontend tests with coverage
+        timeout-minutes: 3
+        run: |
+          cd frontend
+          timeout 180 npm run test:coverage
+
+      - name: Enforce global coverage threshold
+        timeout-minutes: 1
+        run: |
+          if [ -f backend/coverage/coverage-summary.json ]; then
+            lines=$(jq '.total.lines.pct' backend/coverage/coverage-summary.json)
+            if (( $(echo "$lines < 95" | bc -l) )); then
+              echo "::error::Coverage below threshold: $lines% (expected 95%)"
+              exit 1
+            fi
+          fi

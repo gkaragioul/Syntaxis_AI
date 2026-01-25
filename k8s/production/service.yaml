@@ -1,0 +1,354 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: syntaxis-ocr-service
+  namespace: production
+  labels:
+    app: syntaxis-ocr
+    environment: production
+    service-type: main
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/health"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthy-threshold: "2"
+    service.beta.kubernetes.io/aws-load-balancer-unhealthy-threshold: "3"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  selector:
+    app: syntaxis-ocr
+    environment: production
+    version: blue  # Initially points to blue, will be switched during deployment
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syntaxis-ocr-metrics
+  namespace: production
+  labels:
+    app: syntaxis-ocr
+    environment: production
+    component: metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+    prometheus.io/scheme: "http"
+spec:
+  type: ClusterIP
+  ports:
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  selector:
+    app: syntaxis-ocr
+    environment: production
+  sessionAffinity: None
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: syntaxis-ocr-ingress
+  namespace: production
+  labels:
+    app: syntaxis-ocr
+    environment: production
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/rate-limit-connections: "100"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://app.syntaxis.ai,https://dashboard.syntaxis.ai"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,X-API-Key"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range,X-Request-ID,X-Response-Time"
+    nginx.ingress.kubernetes.io/cors-max-age: "86400"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "Permissions-Policy: geolocation=(), microphone=(), camera=()";
+      more_set_headers "X-Request-ID: $request_id";
+      more_set_headers "X-Response-Time: $request_time";
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+      }
+      
+      location /robots.txt {
+        access_log off;
+        return 200 "User-agent: *\nDisallow: /\n";
+        add_header Content-Type text/plain;
+      }
+      
+      location /.well-known/security.txt {
+        access_log off;
+        return 200 "Contact: security@syntaxis.ai\nExpires: 2025-12-31T23:59:59.000Z\nPreferred-Languages: en\n";
+        add_header Content-Type text/plain;
+      }
+spec:
+  tls:
+  - hosts:
+    - api.syntaxis.ai
+    - www.api.syntaxis.ai
+    secretName: syntaxis-ocr-tls-production
+  rules:
+  - host: api.syntaxis.ai
+    http:
+      paths:
+      - path: /()(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: syntaxis-ocr-service
+            port:
+              number: 80
+  - host: www.api.syntaxis.ai
+    http:
+      paths:
+      - path: /()(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: syntaxis-ocr-service
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: syntaxis-ocr-network-policy
+  namespace: production
+  labels:
+    app: syntaxis-ocr
+    environment: production
+spec:
+  podSelector:
+    matchLabels:
+      app: syntaxis-ocr
+      environment: production
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow ingress from nginx ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  # Allow ingress from monitoring namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+  # Allow ingress from same namespace (for blue-green communication)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: production
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS/HTTP outbound (for external APIs)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+  # Allow database connections
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  # Allow Redis connections
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow monitoring connections
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+    - protocol: TCP
+      port: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-page
+  namespace: production
+  labels:
+    app: maintenance-page
+    environment: production
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: maintenance-page
+    environment: production
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-page
+  namespace: production
+  labels:
+    app: maintenance-page
+    environment: production
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: maintenance-page
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: maintenance-page
+        environment: production
+    spec:
+      containers:
+      - name: maintenance-page
+        image: nginx:alpine
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: maintenance-html
+          mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: maintenance-html
+        configMap:
+          name: maintenance-page-html
+      - name: nginx-config
+        configMap:
+          name: maintenance-page-nginx
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maintenance-page-html
+  namespace: production
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>SyntaxisAI - Maintenance</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #333; margin-bottom: 20px; }
+            p { color: #666; line-height: 1.6; }
+            .logo { font-size: 2em; font-weight: bold; color: #007bff; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="logo">SyntaxisAI</div>
+            <h1>Scheduled Maintenance</h1>
+            <p>We're currently performing scheduled maintenance to improve our service.</p>
+            <p>We'll be back online shortly. Thank you for your patience.</p>
+            <p>For urgent inquiries, please contact: <a href="mailto:support@syntaxis.ai">support@syntaxis.ai</a></p>
+        </div>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maintenance-page-nginx
+  namespace: production
+data:
+  default.conf: |
+    server {
+        listen 8080;
+        server_name _;
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+        
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+    }

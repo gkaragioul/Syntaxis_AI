@@ -1,0 +1,201 @@
+# 📌 Project Kickoff: InvoiceExtractor - Invoice PDF to Excel/CSV Tool
+
+## ✅ Step 1: Problem Statement & Agent Questions
+
+**[Problem Statement]**
+I'm building a focused SaaS tool that converts invoice PDFs into clean Excel/CSV data for small businesses, freelancers, and bookkeepers. The app must extract key invoice fields (vendor, date, amount, line items) from both digital and scanned invoices, allow manual correction, and export accounting-ready spreadsheets. The focus is on solving the specific pain point of manual invoice data entry.
+
+**[Goals]**
+- Build an invoice-specific processing tool with 75-85% extraction accuracy
+- Allow users to create vendor templates for repeat suppliers
+- Create a profitable MVP with simple subscription model ($20/month)
+- Target small businesses processing 20-100 invoices per month
+
+**[Questions for Augment]**
+- How would you make this invoice-focused tool?
+- What do you need from me to build this profitably?
+- What are the key technical challenges for invoice processing?
+
+---
+
+## ✅ Step 2: Augment Multi-Agent System Rules
+
+**System Setup**  
+You are part of a multi-agent system operating inside **Augment** in Visual Studio Code. You serve as a coordinator and system operator by switching between two clearly defined roles: **Planner** and **Executor**. Your mission is to complete the user's final requirements efficiently and reliably by writing to and reading from the `augment/scratchpad.md` file.
+
+**Role Activation Instructions**
+- When the user gives a new instruction, always ask whether to proceed as **Planner** or **Executor**, unless the role is already specified.
+- Do not take action until the user confirms the role.
+- Switch roles only with user instruction or when the task flow clearly shifts between planning and execution.
+
+### Role Definitions
+
+**1. Planner**
+- Responsibilities:
+  - High-level thinking and analysis.
+  - Break down feature requests or bugs into clear, minimal steps.
+  - Identify success criteria for each task.
+  - Keep solutions simple—avoid overengineering.
+- Actions:
+  - Update:
+    - `Background and Motivation`
+    - `Key Challenges and Analysis`
+    - `High-level Task Breakdown`
+    - `Project Status Board` (use markdown checkboxes)
+  - Do not write or edit code.
+
+**2. Executor**
+- Responsibilities:
+  - Follow Planner’s steps precisely.
+  - Write code for each task in isolation.
+  - Focus on implementation, testing, and correctness.
+- Actions:
+  - Execute one task at a time from `High-level Task Breakdown`.
+  - Update:
+    - `Project Status Board` (task progress)
+    - `Executor’s Feedback or Assistance Requests`
+    - `Lessons` (bugs, mistakes, or technical insights)
+  - Never mark a task complete without user approval.
+
+---
+
+## 📦 Product Overview
+
+### Problem Summary
+Small businesses, freelancers, and bookkeepers spend 10-20 hours per month manually typing invoice data from PDF invoices into Excel or accounting software. This is tedious, error-prone, and expensive work that costs $250-500/month in labor. Existing solutions are either too expensive (enterprise tools) or too generic (general PDF processors).
+
+### Product Description
+InvoiceExtractor is a focused SaaS tool that allows users to:
+- Upload invoice PDFs (digital or scanned)
+- Auto-extract vendor, date, amount, and line items
+- Review and correct extracted data in user-friendly interface
+- Create vendor templates for repeat suppliers
+- Export accounting-ready CSV/Excel files
+- Simple subscription model: $20/month saves $400/month in labor
+
+---
+
+## 🔧 Suggested Tech Stack (Free/Low-Cost)
+
+- **Frontend**: React.js + TypeScript, Tailwind CSS, hosted on Vercel (free)
+- **Backend**: Node.js + Express, hosted on Railway (free tier)
+- **Database**: PostgreSQL on Supabase (free tier)
+- **PDF Processing**: pdf-parse for digital PDFs, Tesseract.js for OCR
+- **Payments**: Stripe for subscription billing
+- **Email**: EmailJS or Resend (free tier)
+
+---
+
+## 🥅 MVP Scope (Invoice-Focused)
+
+- Upload single invoice PDF (up to 10MB)
+- Extract vendor name, invoice number, date, total amount
+- Extract line items (description, quantity, price, total)
+- Manual correction interface for all fields
+- Export to CSV/Excel with accounting columns
+- Save vendor templates for repeat suppliers
+- Simple subscription model (free: 5 invoices, pro: $20 for 100 invoices)
+
+---
+
+## ✅ Planner Action Required
+
+Begin in **Planner** mode. Define and update:
+- `Background and Motivation`
+- `Key Challenges and Analysis`
+- `High-level Task Breakdown`
+- `Project Status Board`
+
+Wait for confirmation before switching to Executor.
+
+---
+
+## 🧠 Why This Idea is Viable
+
+**1. Real Problem**
+- Small businesses waste 10-20 hours/month typing invoice data manually
+- Clear ROI: $20/month tool saves $400/month in labor costs
+
+**2. Focused Market**
+- 32M small businesses in US, 5M process 20+ invoices/month
+- Invoice formats are more standardized than general PDFs
+- Clear value proposition and measurable time savings
+
+**3. People Will Pay**
+- Freelancers = $20/month (saves 5+ hours)
+- Small businesses = $20/month (saves 15+ hours)
+- Bookkeepers = $50/month (serves multiple clients)
+- ROI is 1,250%+ return on investment
+
+**4. Solo-Dev Friendly**
+- MVP achievable in 10 weeks with free tools
+- Invoice processing is well-defined problem
+- Can start with simple regex patterns, improve over time
+
+---
+
+## 🧠 What Makes It Smart
+
+- Niche focus (invoices only) = deeper expertise and better accuracy
+- Human-in-the-loop = safer, more accurate MVP
+- Vendor templates = compounding user value over time
+- Simple UX focused on one use case = competitive moat
+
+---
+
+## 🧩 Core Differentiator Features
+
+### 1. “Extract table X from page Y”
+- Users define what to extract — not the AI guessing.
+- This allows pinpoint accuracy and avoids irrelevant data.
+
+### 2. “Using my saved logic”
+- Define rules once: page, table, headers, skip rows, filter by keywords.
+- Save logic to reapply every month.
+
+### 3. “Repeat this for 300 files”
+- Most tools fail here.
+- Your tool applies templates in batch with consistent output and zero manual rework.
+
+---
+
+## 🔥 Why No BigCo Built This Yet
+
+1. Not “sexy” enough for general AI labs
+2. Mass-market focus — this is deep, vertical
+3. Technically tricky — layout parsing + rule logic + batch
+4. Small TAM for BigCo, ideal TAM for solo SaaS
+5. UX is hard — so no one bothered
+
+---
+
+## 🧪 Ideal UX Flow
+
+1. Upload a PDF
+2. Auto-detect tables (AI)
+3. Click to select or override
+4. Define:
+   - Header row
+   - Columns to include/exclude
+   - Filters (e.g., remove totals, blank rows)
+5. Save template
+6. Upload batch
+7. Apply template, preview if needed
+8. Export Excel files
+
+---
+
+## 🔁 Template System Example
+
+Templates stored as JSON:
+```json
+{
+  "page": 4,
+  "table_index": 1,
+  "skip_rows": 1,
+  "header_row": 2,
+  "columns": ["Date", "Description", "Amount"],
+  "exclude_if": {
+    "Description": ["Summary", "Total"]
+  }
+}

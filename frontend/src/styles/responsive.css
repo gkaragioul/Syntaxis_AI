@@ -1,0 +1,261 @@
+/* Responsive Layout Styles */
+
+/* Base Layout */
+.responsive-layout {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Breakpoint Classes */
+.mobile-layout {
+  padding: 16px;
+}
+
+.tablet-layout {
+  padding: 24px;
+}
+
+.desktop-layout {
+  padding: 32px;
+}
+
+/* Layout Variants */
+.grid-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-layout {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-layout .form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .form-layout .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Spacing Variants */
+.spacing-xs {
+  gap: 0.25rem;
+  padding: 0.25rem;
+}
+
+.spacing-sm {
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.spacing-md {
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.spacing-lg {
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.spacing-xl {
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Responsive Visibility */
+.show-mobile {
+  display: block;
+}
+
+.hide-mobile {
+  display: none;
+}
+
+.show-tablet {
+  display: none;
+}
+
+.hide-tablet {
+  display: block;
+}
+
+.show-desktop {
+  display: none;
+}
+
+.hide-desktop {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .show-mobile {
+    display: none;
+  }
+  
+  .hide-mobile {
+    display: block;
+  }
+  
+  .show-tablet {
+    display: block;
+  }
+  
+  .hide-tablet {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .show-tablet {
+    display: none;
+  }
+  
+  .hide-tablet {
+    display: block;
+  }
+  
+  .show-desktop {
+    display: block;
+  }
+  
+  .hide-desktop {
+    display: none;
+  }
+}
+
+/* Mobile Navigation */
+.mobile-navigation {
+  position: relative;
+}
+
+.menu-toggle {
+  display: block;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.nav-items.mobile-hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .menu-toggle {
+    display: none;
+  }
+  
+  .nav-items.mobile-hidden {
+    display: flex;
+  }
+}
+
+/* Touch Optimization */
+.touch-optimized button,
+.touch-optimized [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 16px;
+  touch-action: manipulation;
+}
+
+.touch-optimized input,
+.touch-optimized select,
+.touch-optimized textarea {
+  min-height: 44px;
+  padding: 12px;
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+/* Container Queries */
+.responsive-layout[style*="container-type"] {
+  container-type: inline-size;
+}
+
+@container (max-width: 300px) {
+  .responsive-layout {
+    padding: 8px;
+  }
+}
+
+@container (min-width: 300px) and (max-width: 600px) {
+  .responsive-layout {
+    padding: 16px;
+  }
+}
+
+@container (min-width: 600px) {
+  .responsive-layout {
+    padding: 24px;
+  }
+}
+
+/* Responsive Images */
+.responsive-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsive Typography */
+.responsive-text {
+  font-size: clamp(14px, 2.5vw, 18px);
+  line-height: 1.5;
+}
+
+/* Responsive Grid */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Responsive Flexbox */
+.responsive-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-flex {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .responsive-layout {
+    padding: 0;
+    box-shadow: none;
+  }
+  
+  .hide-print {
+    display: none !important;
+  }
+  
+  .show-print {
+    display: block !important;
+  }
+}

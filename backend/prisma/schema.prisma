@@ -1,0 +1,776 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                         String                    @id @default(uuid())
+  email                      String                    @unique
+  passwordHash               String
+  subscriptionStatus         String                    @default("free")
+  subscriptionId             String?                   @unique
+  invoicesProcessedThisMonth Int                       @default(0)
+  monthlyLimit               Int                       @default(3)
+  lastResetDate              DateTime                  @default(now())
+  emailVerified              Boolean                   @default(false)
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  deletedAt                  DateTime?
+  auditLogs                  AuditLog[]
+  batchJobs                  BatchJob[]
+  errorReports               ErrorReport[]
+  extractions                Extraction[]
+  extractionRules            ExtractionRule[]
+  fieldPatterns              FieldPattern[]
+  files                      File[]
+  invoices                   Invoice[]
+  invoiceAttachments         InvoiceAttachment[]
+  invoiceLineItems           InvoiceLineItem[]
+  invoiceValidations         InvoiceValidationResult[]
+  invoiceChangeLogs          InvoiceChangeLog[]
+  statusUpdates              StatusUpdate[]
+  exportJobs                 ExportJob[]
+  systemErrorReports         SystemErrorReport[]
+  reviewTasks                ReviewTask[]              @relation("ReviewerTasks")
+  reviewComments             ReviewComment[]           @relation("ReviewerComments")
+  confidenceThresholds       ConfidenceThreshold[]
+  corrections                Correction[]              @relation("UserCorrections")
+  correctionTemplates        CorrectionTemplate[]      @relation("UserCorrectionTemplates")
+  licenses                   License[]
+  notifications              Notification[]
+  ocrResults                 OCRResult[]
+  performanceMetrics         PerformanceMetric[]
+  sessions                   Session[]
+  templates                  Template[]
+  templateApplications       TemplateApplication[]
+  wizardSessions             WizardSession[]
+
+  @@index([subscriptionStatus])
+  @@index([createdAt])
+  @@index([emailVerified])
+}
+
+model File {
+  id                    String             @id @default(uuid())
+  userId                String
+  batchJobId            String?
+  filename              String
+  originalFilename      String
+  filePath              String
+  fileSize              BigInt
+  mimeType              String
+  fileHash              String
+  status                String             @default("uploaded")
+  uploadStatus          String?
+  processingStatus      String?
+  extractionConfidence  Float?
+  validationStatus      String?
+  uploadedAt            DateTime?
+  processingStartedAt   DateTime?
+  processingCompletedAt DateTime?
+  errorMessage          String?
+  retryCount            Int                @default(0)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  extraction            Extraction?
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batchJob              BatchJob?          @relation(fields: [batchJobId], references: [id], onDelete: SetNull)
+  invoiceAttachment     InvoiceAttachment?
+  performanceMetrics    PerformanceMetric[]
+  
+  // Fingerprinting & Matching
+  fingerprint           Json?         // Layout fingerprint
+  matchedTemplateId     String?       // ID of the suggested/matched template
+  matchConfidence       Float?        // Confidence score of the match
+  matchReasons          Json?         // Array of reasons for the match/mismatch
+  matchedTemplate       Template?     @relation("FileMatchedTemplate", fields: [matchedTemplateId], references: [id])
+
+  @@index([userId])
+  @@index([batchJobId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([fileHash])
+  @@index([userId, status])
+}
+
+model Extraction {
+  id                   String                @id @default(uuid())
+  fileId               String                @unique
+  userId               String
+  vendorName           String?
+  vendorAddress        String?
+  invoiceNumber        String?
+  invoiceDate          DateTime?
+  dueDate              DateTime?
+  totalAmount          Decimal?
+  taxAmount            Decimal?
+  currency             String                @default("USD")
+  lineItems            Json                  @default("[]")
+  extractionConfidence Float
+  fieldConfidence      Json                  @default("{}")
+  ocrEnginesUsed       String[]
+  processingTimeMs     Int
+  userEdited           Boolean               @default(false)
+  userCorrections      Json?                 @default("{}")
+  reviewStatus         String                @default("pending")
+  templateId           String?
+  templateApplied      Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  ocrResultId          String?
+  file                 File                  @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  ocrResult            OCRResult?            @relation("OCRResultExtractions", fields: [ocrResultId], references: [id])
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice              Invoice?
+  templateApplications TemplateApplication[]
+
+  @@index([fileId])
+  @@index([userId])
+  @@index([extractionConfidence])
+  @@index([reviewStatus])
+  @@index([createdAt])
+  @@index([vendorName])
+}
+
+model FieldPattern {
+  id        String   @id @default(uuid())
+  userId    String
+  field     String
+  patterns  String[]
+  priority  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([field])
+}
+
+model PerformanceMetric {
+  id                 String   @id @default(uuid())
+  fileId             String
+  userId             String
+  engine             String
+  processingTime     Int
+  queueWaitTime      Int      @default(0)
+  totalTime          Int
+  confidence         Float
+  textLength         Int
+  pageCount          Int
+  errorCount         Int      @default(0)
+  retryCount         Int      @default(0)
+  fallbackUsed       Boolean  @default(false)
+  enginesUsed        String[]
+  fileSize           BigInt
+  mimeType           String
+  success            Boolean
+  confidenceMetrics  Json?
+  resourceUsage      Json?
+  timestamp          DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([fileId])
+  @@index([userId])
+  @@index([engine])
+  @@index([timestamp])
+  @@index([success])
+  @@index([confidence])
+  @@index([processingTime])
+}
+
+model ExtractionRule {
+  id         String   @id @default(uuid())
+  userId     String
+  field      String
+  validation Json
+  confidence Float    @default(0.9)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([field])
+}
+
+model OCRResult {
+  id               String       @id @default(uuid())
+  userId           String
+  ocrResultId      String
+  fields           Json
+  confidence       Float
+  status           String       @default("completed")
+  validationErrors Json?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  extractions      Extraction[] @relation("OCRResultExtractions")
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([ocrResultId])
+  @@index([status])
+}
+
+model Template {
+  id            String                @id @default(uuid())
+  userId        String
+  name          String
+  vendorName    String
+  patterns      Json
+  fieldMappings Json
+  successRate   Float                 @default(0)
+  usageCount    Int                   @default(0)
+  // Enhanced fields for template matching
+  templateType  String?               // standard_invoice, receipt, service_invoice, etc.
+  language      String?               // Language code (en, es, de, fr, etc.)
+  isActive      Boolean               @default(true)
+  isBuiltIn     Boolean               @default(false)
+  description   String?
+  metadata      Json?                 // Additional template metadata
+  fingerprint   Json?                 // Layout fingerprint (FingerprintV1)
+  extractionSchema Json?              // Extraction rules blueprint
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  user          User                  @relation(fields: [userId], references: [id])
+  applications  TemplateApplication[]
+  matchedFiles  File[]                @relation("FileMatchedTemplate")
+
+  @@index([userId])
+  @@index([vendorName])
+  @@index([templateType])
+  @@index([language])
+  @@index([successRate])
+  @@index([isActive])
+}
+
+model TemplateApplication {
+  id               String     @id @default(uuid())
+  userId           String
+  templateId       String
+  extractionId     String
+  status           String
+  confidence       Float
+  validationErrors Json?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  extraction       Extraction @relation(fields: [extractionId], references: [id])
+  template         Template   @relation(fields: [templateId], references: [id])
+  user             User       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([templateId])
+  @@index([extractionId])
+}
+
+model Notification {
+  id         String    @id @default(cuid())
+  userId     String
+  batchJobId String
+  type       String
+  status     String
+  message    String
+  metadata   Json?
+  read       Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  expiresAt  DateTime?
+  deletedAt  DateTime?
+  batchJob   BatchJob  @relation(fields: [batchJobId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([batchJobId])
+  @@index([type, status])
+  @@index([expiresAt])
+}
+
+model ErrorReport {
+  id                  String    @id @default(cuid())
+  userId              String
+  batchJobId          String
+  errorType           String
+  errorCode           String
+  errorMessage        String
+  errorDetails        Json?
+  troubleshootingTips String[]
+  stackTrace          String?
+  reportPath          String?
+  reportFormat        String?
+  reportSize          Int?
+  downloadCount       Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  expiresAt           DateTime?
+  deletedAt           DateTime?
+  batchJob            BatchJob  @relation(fields: [batchJobId], references: [id])
+  user                User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([batchJobId])
+  @@index([errorType, errorCode])
+  @@index([expiresAt])
+}
+
+model BatchJob {
+  id                  String         @id @default(uuid())
+  userId              String
+  batchName           String?
+  description         String?
+  status              String         @default("pending")
+  totalFiles          Int            @default(0)
+  processedFiles      Int            @default(0)
+  failedFiles         Int            @default(0)
+  options             Json?
+  processingOptions   Json?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  startedAt           DateTime?
+  pausedAt            DateTime?
+  resumedAt           DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancellationReason  String?
+  user                User           @relation(fields: [userId], references: [id])
+  files               File[]
+  errorReports        ErrorReport[]
+  notifications       Notification[]
+  wizardSessions      WizardSession[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String
+  action       String
+  resourceType String
+  resourceId   String
+  metadata     Json
+  ipAddress    String
+  userAgent    String
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([action])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+}
+
+model License {
+  id         String    @id @default(uuid())
+  userId     String
+  key        String    @unique
+  status     String    @default("active")
+  type       String
+  maxDevices Int       @default(1)
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  revokedAt  DateTime?
+  devices    Device[]
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([key])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model Device {
+  id            String    @id @default(uuid())
+  licenseId     String
+  deviceInfo    String
+  fingerprint   String
+  status        String    @default("active")
+  activatedAt   DateTime  @default(now())
+  deactivatedAt DateTime?
+  lastSeenAt    DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  license       License   @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+
+  @@index([licenseId])
+  @@index([fingerprint])
+  @@index([status])
+  @@index([activatedAt])
+  @@index([deactivatedAt])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique
+  deviceInfo   String
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime @default(now())
+  expiresAt    DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@index([expiresAt])
+}
+
+model Invoice {
+  id                String                    @id @default(uuid())
+  userId            String
+  extractionId      String                    @unique
+  status            String                    @default("pending")
+  invoiceNumber     String?
+  invoiceDate       DateTime?
+  dueDate           DateTime?
+  vendorName        String?
+  vendorAddress     String?
+  vendorTaxId       String?
+  customerName      String?
+  customerAddress   String?
+  customerTaxId     String?
+  subtotal          Decimal?
+  taxAmount         Decimal?
+  totalAmount       Decimal?
+  currency          String                    @default("USD")
+  paymentTerms      String?
+  paymentStatus     String                    @default("unpaid")
+  paymentHistory    Json                      @default("[]")
+  notes             String?
+  tags              String[]
+  metadata          Json?
+  // Enhanced extraction fields
+  extractionConfidence    Decimal?              // Overall extraction confidence score
+  templateId              String?               // ID of the template used for extraction
+  templateType            String?               // Type of template (standard_invoice, receipt, etc.)
+  templateConfidence      Decimal?              // Confidence in template matching
+  detectedLanguage        String?               // Detected document language
+  ocrQuality              Decimal?              // Overall OCR quality score
+  validationStatus        String                @default("pending") // overall validation status
+  businessRulesScore      Decimal?              // Score for business rules validation
+  archivedAt        DateTime?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  extraction        Extraction                @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments       InvoiceAttachment[]
+  lineItems         InvoiceLineItem[]
+  validationResults InvoiceValidationResult[]
+  changeLogs        InvoiceChangeLog[]
+  statusUpdates     StatusUpdate[]
+  reviewTasks       ReviewTask[]
+  reviewComments    ReviewComment[]
+  corrections       Correction[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([invoiceNumber])
+  @@index([vendorName])
+  @@index([customerName])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@index([dueDate])
+  @@index([templateId])
+  @@index([templateType])
+  @@index([validationStatus])
+  @@index([extractionConfidence])
+  @@index([detectedLanguage])
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  userId      String
+  description String
+  quantity    Decimal
+  unitPrice   Decimal
+  amount      Decimal
+  taxRate     Decimal?
+  taxAmount   Decimal?
+  metadata    Json?
+  // Enhanced extraction fields for line items
+  extractionConfidence    Decimal?              // Confidence in line item extraction
+  itemType               String?               // Type: product, service, discount, etc.
+  category               String?               // Item category
+  sku                    String?               // Product SKU if available
+  calculationValid       Boolean               @default(true) // Whether qty * price = amount
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([userId])
+  @@index([itemType])
+  @@index([category])
+  @@index([sku])
+}
+
+model InvoiceAttachment {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  fileId      String   @unique
+  userId      String
+  type        String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([type])
+  @@index([userId])
+}
+
+model InvoiceValidationResult {
+  id        String   @id @default(uuid())
+  invoiceId String
+  userId    String
+  field     String
+  status    String
+  message   String?
+  severity  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([field])
+  @@index([status])
+  @@index([severity])
+  @@index([userId])
+}
+
+model InvoiceChangeLog {
+  id           String   @id @default(uuid())
+  invoiceId    String
+  userId       String
+  fieldName    String
+  oldValue     Json?
+  newValue     Json?
+  changeReason String?
+  timestamp    DateTime @default(now())
+  metadata     Json?
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("invoice_change_logs")
+}
+
+model StatusUpdate {
+  id             String   @id @default(uuid())
+  invoiceId      String?
+  userId         String
+  status         String
+  previousStatus String?
+  timestamp      DateTime @default(now())
+  metadata       Json?
+
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([userId])
+  @@index([status])
+  @@index([timestamp])
+  @@map("status_updates")
+}
+
+model ExportJob {
+  id               String    @id @default(uuid())
+  userId           String
+  format           String
+  status           String    @default("pending")
+  progress         Int?      @default(0)
+  totalRecords     Int?
+  processedRecords Int?      @default(0)
+  recordCount      Int?
+  fileSize         Int?
+  downloadUrl      String?
+  error            String?
+  options          Json?
+  metadata         Json?
+  createdAt        DateTime  @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("export_jobs")
+}
+
+model SystemErrorReport {
+  id           String   @id @default(uuid())
+  userId       String?
+  operation    String?
+  error        String
+  stack        String?
+  category     String
+  severity     String
+  isRecoverable Boolean @default(true)
+  resolved     Boolean @default(false)
+  context      Json?
+  metadata     Json?
+  timestamp    DateTime @default(now())
+  resolvedAt   DateTime?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([category])
+  @@index([severity])
+  @@index([timestamp])
+  @@index([resolved])
+  @@map("system_error_reports")
+}
+
+model ReviewTask {
+  id                String    @id @default(uuid())
+  invoiceId         String
+  assignedTo        String?
+  priority          String    @default("medium")
+  reviewType        String
+  status            String    @default("pending")
+  dueDate           DateTime?
+  instructions      String?
+  fieldsToReview    Json?
+  estimatedTime     Int?
+  finalConfidence   Float?
+  reviewNotes       String?
+  approvalLevel     String?
+  rejectionReason   String?
+  requiredActions   Json?
+  createdAt         DateTime  @default(now())
+  completedAt       DateTime?
+
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  reviewer  User?   @relation("ReviewerTasks", fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([assignedTo])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("review_tasks")
+}
+
+model ReviewComment {
+  id               String   @id @default(uuid())
+  invoiceId        String
+  reviewerId       String
+  fieldName        String?
+  comment          String
+  commentType      String
+  priority         String?
+  parentCommentId  String?
+  createdAt        DateTime @default(now())
+
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  reviewer      User          @relation("ReviewerComments", fields: [reviewerId], references: [id], onDelete: Cascade)
+  parentComment ReviewComment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies       ReviewComment[] @relation("CommentReplies")
+
+  @@index([invoiceId])
+  @@index([reviewerId])
+  @@index([parentCommentId])
+  @@index([createdAt])
+  @@map("review_comments")
+}
+
+model ConfidenceThreshold {
+  id         String   @id @default(uuid())
+  userId     String
+  thresholds Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("confidence_thresholds")
+}
+
+model Correction {
+  id            String    @id @default(uuid())
+  invoiceId     String
+  userId        String
+  fieldName     String
+  oldValue      Json
+  newValue      Json
+  reason        String?
+  confidence    Float?
+  status        String    @default("applied")
+  revertedAt    DateTime?
+  revertReason  String?
+  createdAt     DateTime  @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  user    User    @relation("UserCorrections", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([userId])
+  @@index([fieldName])
+  @@index([status])
+  @@index([createdAt])
+  @@map("corrections")
+}
+
+model CorrectionTemplate {
+  id              String   @id @default(uuid())
+  userId          String
+  name            String
+  description     String?
+  fieldName       String
+  rules           Json
+  autoApply       Boolean  @default(false)
+  requiresApproval Boolean @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation("UserCorrectionTemplates", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([fieldName])
+  @@index([autoApply])
+  @@map("correction_templates")
+}
+
+model WizardSession {
+  id            String   @id @default(uuid())
+  userId        String
+  state         String   @default("UPLOAD_READY")
+  currentStep   Int      @default(1)
+  batchJobId    String?
+  groupsData    Json?
+  exportResults Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  batchJob  BatchJob? @relation(fields: [batchJobId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([state])
+  @@index([createdAt])
+  @@map("wizard_sessions")
+}
