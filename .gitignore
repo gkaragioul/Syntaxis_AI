@@ -60,3 +60,6 @@ backend/uploads/*
 .tmp
 *.tsbuildinfo
 next-env.d.ts 
+
+# Test data (financial samples) — kept out of git per privacy/data-handling policy
+DATA_Samples/
