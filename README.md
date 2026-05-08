@@ -1,9 +1,18 @@
-# SyntaxisAI - Invoice Extraction Platform
+<h1 align="center">SyntaxisAI</h1>
 
-**Version 0.2.0**
+<p align="center">
+  <strong>AI-powered invoice extraction platform for turning invoice PDFs into structured Excel/CSV data.</strong><br>
+  <em>Version 0.2.0 with secure file handling, real-time processing status, role-based access, and export-ready accounting workflows.</em>
+</p>
 
-A specialized SaaS platform that leverages AI to extract structured data from invoice PDFs with high accuracy. Transform unstructured invoice documents into clean, exportable Excel/CSV data ready for accounting systems.
-
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#project-structure">Project Structure</a> •
+  <a href="#development">Development</a> •
+  <a href="#testing">Testing</a> •
+  <a href="#license">License</a>
+</p>
 ## Features
 
 - **AI-Powered Extraction**: Intelligent parsing of invoice data using machine learning
