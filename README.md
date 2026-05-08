@@ -10,6 +10,7 @@
   <a href="#legal-and-licensing">Legal And Licensing</a> •
   <a href="#license">License</a>
 </p>
+
 ## What This Was
 
 - React/TypeScript frontend for uploading and reviewing invoice documents.
