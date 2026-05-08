@@ -1,11 +1,15 @@
-# SyntaxisAI
+<h1 align="center">SyntaxisAI</h1>
 
-**Project status: cancelled / archived.**
+<p align="center">
+  <strong>Cancelled experimental invoice extraction platform for turning invoice PDFs into structured review/export data.</strong><br>
+  <em>Published as-is for reference, reuse, and salvage under the MIT License; not maintained, not production-ready, and not a supported SaaS product.</em>
+</p>
 
-SyntaxisAI was an experimental invoice extraction platform for turning invoice PDFs into structured data for review and export. Development has been cancelled and the repository is published as-is for reference, reuse, and salvage under the MIT License.
-
-This project is not maintained, not production-ready, and should not be treated as a supported SaaS product. Some implementation areas are incomplete, stale, or experimental.
-
+<p align="center">
+  <a href="#what-this-was">What This Was</a> •
+  <a href="#legal-and-licensing">Legal And Licensing</a> •
+  <a href="#license">License</a>
+</p>
 ## What This Was
 
 - React/TypeScript frontend for uploading and reviewing invoice documents.
