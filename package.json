@@ -2,6 +2,7 @@
   "name": "syntaxis-ai",
   "version": "0.2.0",
   "private": true,
+  "license": "MIT",
   "workspaces": [
     "frontend",
     "backend"
@@ -63,4 +64,4 @@
       "prettier --write"
     ]
   }
-} 
+}

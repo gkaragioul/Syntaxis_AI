@@ -154,6 +154,10 @@ npm run preview
 - [Testing Guide](./src/__tests__/README.md)
 - [Deployment Guide](../docs/deployment/frontend.md)
 
+## Project Status
+
+SyntaxisAI has been cancelled and archived. This frontend remains available as historical source code, but it is not actively maintained or production-supported.
+
 ## 🤝 Contributing
 
 1. Follow the coding standards
@@ -163,4 +167,4 @@ npm run preview
 
 ## 📄 License
 
-MIT License - see [LICENSE](../LICENSE) for details
+Original SyntaxisAI source code is MIT licensed. See [LICENSE](../LICENSE) for details. Third-party dependencies keep their own licenses; see [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).

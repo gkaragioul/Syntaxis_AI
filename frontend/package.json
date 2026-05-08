@@ -2,6 +2,7 @@
   "name": "@syntaxis-ai/frontend",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -91,8 +92,7 @@
       "dist/**/*",
       "dist-electron/**/*",
       "node_modules/**/*",
-      "assets/**/*",
-      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme,LICENSE,license,LICENSEs,licenses}"
+      "assets/**/*"
     ],
     "directories": {
       "buildResources": "assets",

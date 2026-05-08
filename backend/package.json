@@ -2,6 +2,7 @@
   "name": "syntaxis-ai-backend",
   "version": "1.0.0",
   "description": "Backend for SyntaxisAI invoice processing service",
+  "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",

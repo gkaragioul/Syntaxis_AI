@@ -1,174 +1,69 @@
-<h1 align="center">SyntaxisAI</h1>
+# SyntaxisAI
 
-<p align="center">
-  <strong>AI-powered invoice extraction platform for turning invoice PDFs into structured Excel/CSV data.</strong><br>
-  <em>Version 0.2.0 with secure file handling, real-time processing status, role-based access, and export-ready accounting workflows.</em>
-</p>
+**Project status: cancelled / archived.**
 
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#project-structure">Project Structure</a> •
-  <a href="#development">Development</a> •
-  <a href="#testing">Testing</a> •
-  <a href="#license">License</a>
-</p>
+SyntaxisAI was an experimental invoice extraction platform for turning invoice PDFs into structured data for review and export. Development has been cancelled and the repository is published as-is for reference, reuse, and salvage under the MIT License.
 
-## Features
+This project is not maintained, not production-ready, and should not be treated as a supported SaaS product. Some implementation areas are incomplete, stale, or experimental.
 
-- **AI-Powered Extraction**: Intelligent parsing of invoice data using machine learning
-- **Multi-Format Support**: Process various invoice formats and layouts
-- **Real-Time Processing**: Live status updates during document processing
-- **Export Options**: Download extracted data as Excel or CSV files
-- **Secure File Handling**: Strict validation and secure storage of uploaded documents
-- **User Management**: Role-based access control and authentication
+## What This Was
 
-## Table of Contents
+- React/TypeScript frontend for uploading and reviewing invoice documents.
+- Node.js/Express backend for authentication, file handling, OCR orchestration, and invoice data APIs.
+- Python service experiments for PDF parsing, table detection, and extraction heuristics.
+- Electron packaging experiments for a desktop build.
 
-1. [Quick Start](#quick-start)
-2. [Project Structure](#project-structure)
-3. [Development](#development)
-4. [Testing](#testing)
-5. [Documentation](#documentation)
-6. [Security](#security)
-7. [License](#license)
+## Legal And Licensing
 
-## Quick Start
+The original SyntaxisAI source code is released under the MIT License. See [LICENSE](LICENSE).
 
-### Prerequisites
+Third-party dependencies are not relicensed by this repository. They remain under their own licenses, including permissive, copyleft, and attribution licenses. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [docs/LICENSE_AUDIT.md](docs/LICENSE_AUDIT.md) before redistributing, packaging, or publishing binaries.
 
-- Node.js >= 18.0.0
-- PostgreSQL >= 14
-- Git
+Important audit notes:
 
-### Installation
+- The repository previously claimed MIT licensing without a root `LICENSE` file. That has been corrected.
+- The Python service uses PyMuPDF/MuPDF, which is AGPL-licensed unless a commercial license is obtained.
+- The backend dependency tree includes `ua-parser-js` v2, listed as AGPL-3.0-or-later in the lockfile.
+- Electron packaging should preserve third-party license notices if anyone revives binary distribution.
+- This is not legal advice. Have a lawyer review the dependency and distribution model before shipping a derivative product.
 
-1. Clone the repository:
-```bash
-git clone https://github.com/georgekgr12/SyntaxisAI.git
-cd SyntaxisAI
-```
+## Historical Setup
 
-2. Install dependencies:
+The original development flow used Node.js 18+, PostgreSQL, Redis, and npm workspaces.
+
 ```bash
 npm install
-```
-
-3. Set up environment variables:
-```bash
-cp frontend/.env.example frontend/.env
-cp backend/.env.example backend/.env
-```
-
-4. Start development servers:
-```bash
 npm run dev
 ```
 
-### Usage
-
-Once the development servers are running:
-
-1. Open http://localhost:3000 in your browser
-2. Create an account or log in
-3. Upload PDF invoices using the drag-and-drop interface
-4. Monitor processing status in real-time
-5. Download extracted data as Excel/CSV files
+Those commands are kept for historical convenience only. They may fail without environment setup, database services, and dependency cleanup.
 
 ## Project Structure
 
-```
+```text
 SyntaxisAI/
-├── frontend/          # React.js web application
+├── frontend/          # React/Electron frontend
 ├── backend/           # Node.js/Express API server
-├── database/          # Database schemas and migrations
-├── docs/              # Project documentation
-├── scripts/           # Build and setup scripts
-├── services/          # Microservices
-├── apps/              # Additional applications
+├── services/          # Python service experiments
+├── database/          # Database schema and migration material
+├── docs/              # Project and audit documentation
+├── scripts/           # Setup and utility scripts
+├── apps/              # Additional experiments
 └── shared/            # Shared utilities and types
 ```
 
-## Development
+## Reuse Guidance
 
-### Available Scripts
+If you want to reuse this project, treat it as a code archive rather than a ready product:
 
-```bash
-# Start all development servers
-npm run dev
-
-# Start frontend only
-npm run dev:frontend
-
-# Start backend only
-npm run dev:backend
-
-# Build all workspaces
-npm run build
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
-# Type checking
-npm run type-check
-
-# Run all validation
-npm run validate
-```
-
-### Docker Support
-
-```bash
-# Start containers
-npm run docker:up
-
-# Stop containers
-npm run docker:down
-
-# View logs
-npm run docker:logs
-```
-
-## Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run frontend tests
-npm test --workspace=frontend
-
-# Run backend tests
-npm test --workspace=backend
-```
-
-## Documentation
-
-- [API Documentation](./docs/api/README.md)
-- [Development Guide](./docs/development/README.md)
-- [Testing Guidelines](./docs/testing/README.md)
-
-## Security
-
-This project implements security best practices:
-
-- Regular dependency audits
-- JWT-based authentication with secure token handling
-- Strict file upload validation
-- Rate limiting on all API endpoints
-- Environment-based configuration
-
-## Tech Stack
-
-- **Frontend**: React.js, TypeScript
-- **Backend**: Node.js, Express, TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT
-- **Build Tools**: Vite, ESLint, Prettier
+1. Remove generated dependency artifacts such as checked-in virtual environments.
+2. Re-run dependency license scanning for your exact runtime and build output.
+3. Replace or commercially license AGPL components if your distribution model requires it.
+4. Regenerate lockfiles and third-party notices.
+5. Review security, privacy, and data handling before processing real invoices.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details
+Original SyntaxisAI source code: MIT License.
+
+Third-party dependencies and generated artifacts: their respective licenses.
