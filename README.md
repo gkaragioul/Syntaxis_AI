@@ -13,6 +13,7 @@
   <a href="#testing">Testing</a> •
   <a href="#license">License</a>
 </p>
+
 ## Features
 
 - **AI-Powered Extraction**: Intelligent parsing of invoice data using machine learning
