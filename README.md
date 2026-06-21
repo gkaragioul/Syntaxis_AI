@@ -27,8 +27,8 @@ Third-party dependencies are not relicensed by this repository. They remain unde
 Important audit notes:
 
 - The repository previously claimed MIT licensing without a root `LICENSE` file. That has been corrected.
-- The Python service uses PyMuPDF/MuPDF, which is AGPL-licensed unless a commercial license is obtained.
-- The backend dependency tree includes `ua-parser-js` v2, listed as AGPL-3.0-or-later in the lockfile.
+- PyMuPDF/MuPDF was removed from install manifests. Some legacy Python extraction files still import `fitz`; treat those files as historical until they are rewritten for a permissive PDF library or covered by a commercial PyMuPDF license.
+- `ua-parser-js` v2 was removed from backend manifests and replaced with local lightweight user-agent parsing.
 - Electron packaging should preserve third-party license notices if anyone revives binary distribution.
 - This is not legal advice. Have a lawyer review the dependency and distribution model before shipping a derivative product.
 
@@ -63,7 +63,7 @@ If you want to reuse this project, treat it as a code archive rather than a read
 
 1. Remove generated dependency artifacts such as checked-in virtual environments.
 2. Re-run dependency license scanning for your exact runtime and build output.
-3. Replace or commercially license AGPL components if your distribution model requires it.
+3. Rewrite or commercially license legacy `fitz`/PyMuPDF-based code before reviving the Python extraction service.
 4. Regenerate lockfiles and third-party notices.
 5. Review security, privacy, and data handling before processing real invoices.
 

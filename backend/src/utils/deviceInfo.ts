@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { UAParser } from 'ua-parser-js';
+import { parseUserAgent } from './userAgent';
 
 interface DeviceInfo {
   os: string;
@@ -12,10 +12,7 @@ interface DeviceInfo {
 }
 
 export function getDeviceInfo(req: Request): DeviceInfo {
-  const ua = new UAParser(req.headers['user-agent'] as string);
-  const browser = ua.getBrowser();
-  const os = ua.getOS();
-  const device = ua.getDevice();
+  const parsed = parseUserAgent(req.headers['user-agent'] as string);
 
   // Get screen resolution from headers if available
   const screenResolution =
@@ -30,9 +27,9 @@ export function getDeviceInfo(req: Request): DeviceInfo {
     | undefined;
 
   return {
-    os: `${os.name} ${os.version}`,
-    browser: `${browser.name} ${browser.version}`,
-    deviceType: device.type || 'desktop',
+    os: `${parsed.os.name} ${parsed.os.version}`,
+    browser: `${parsed.browser.name} ${parsed.browser.version}`,
+    deviceType: parsed.device.type || 'desktop',
     ipAddress: req.ip,
     userAgent: req.headers['user-agent'] as string || 'unknown',
     screenResolution,

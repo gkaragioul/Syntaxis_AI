@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import crypto from 'crypto';
-import { UAParser } from 'ua-parser-js';
+import { parseUserAgent } from './userAgent';
 
 /**
  * Generate a unique device fingerprint based on various device characteristics
@@ -8,24 +8,21 @@ import { UAParser } from 'ua-parser-js';
  * sophisticated fingerprinting library or service
  */
 export function generateDeviceFingerprint(req: Request): string {
-  const ua = new UAParser(req.headers['user-agent'] as string);
-  const browser = ua.getBrowser();
-  const os = ua.getOS();
-  const device = ua.getDevice();
+  const parsed = parseUserAgent(req.headers['user-agent'] as string);
 
   // Collect various device characteristics
   const components = [
     // Browser
-    browser.name,
-    browser.version,
-    browser.major,
+    parsed.browser.name,
+    parsed.browser.version,
+    parsed.browser.major,
     // OS
-    os.name,
-    os.version,
+    parsed.os.name,
+    parsed.os.version,
     // Device
-    device.type,
-    device.vendor,
-    device.model,
+    parsed.device.type,
+    parsed.device.vendor,
+    parsed.device.model,
     // Headers
     req.headers['accept-language'],
     req.headers['sec-ch-ua'],

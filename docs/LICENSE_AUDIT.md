@@ -1,9 +1,9 @@
 # License Audit - SyntaxisAI
 
-**Verdict:** NEEDS FIXES for distribution; acceptable as an archived source release after the README and root MIT license updates.
+**Verdict:** Acceptable as an archived MIT source release after cleanup. Re-audit before distributing binaries, Docker images, hosted services, or any revived Python extraction workflow.
 **Intended license:** MIT for original SyntaxisAI source code.
 **Detected license before updates:** Inconsistent. README claimed MIT, but no root `LICENSE` file was present.
-**Audit date:** 2026-05-09
+**Audit date:** 2026-05-09; cleanup update 2026-06-22.
 
 This audit follows `H:\DevWork\Files\DOCS\License-Policy-Audit-Checklist.md`. It is a practical engineering audit, not legal advice.
 
@@ -12,9 +12,9 @@ This audit follows `H:\DevWork\Files\DOCS\License-Policy-Audit-Checklist.md`. It
 ### HIGH
 
 1. **Missing authoritative MIT license** - `README.md:162` previously claimed MIT but the repository had no root `LICENSE` file. Add the full MIT license text at repository root. Fixed by adding `LICENSE`.
-2. **AGPL Python PDF dependency** - `services/api/requirements.txt:11` lists `PyMuPDF==1.23.21`, and installed metadata in `services/api/venv/lib/python3.9/site-packages/PyMuPDF-1.23.21.dist-info/METADATA:8` states GNU Affero GPL 3.0. Review AGPL obligations before distribution or network use; replace it or obtain a commercial license if the intended distribution model is incompatible.
-3. **AGPL backend dependency** - `backend/package.json:71` lists `ua-parser-js`, and `backend/package-lock.json` records `ua-parser-js` v2 as AGPL-3.0-or-later. Review compatibility with an MIT-only distribution or replace/pin to a suitable alternative.
-4. **Checked-in virtualenv contains third-party binaries** - `git ls-files services/api/venv` reports 7,371 tracked files. Remove generated virtualenv artifacts from the repository before treating this as a clean source release.
+2. **AGPL Python PDF dependency** - `services/api/requirements.txt` previously listed `PyMuPDF==1.23.21`, and installed metadata in the checked-in virtualenv identified GNU Affero GPL 3.0 licensing. Fixed for install manifests by removing PyMuPDF from `services/api/requirements.txt`, removing the duplicate worker Dockerfile install path, and removing the checked-in virtualenv. Remaining caveat: legacy Python extraction files still import `fitz`; do not revive or ship that path unless it is rewritten for a permissive PDF library or covered by a commercial PyMuPDF license.
+3. **AGPL backend dependency** - `backend/package.json` previously listed `ua-parser-js`, and `backend/package-lock.json` recorded `ua-parser-js` v2 as AGPL-3.0-or-later. Fixed by removing `ua-parser-js` and `@types/ua-parser-js`, regenerating lockfiles, and replacing usage with local lightweight user-agent parsing.
+4. **Checked-in virtualenv contains third-party binaries** - `git ls-files services/api/venv` previously reported 7,371 tracked files. Fixed by removing `services/api/venv/` from version control. `.gitignore` already excludes virtualenv paths.
 
 ### MEDIUM
 
@@ -32,9 +32,9 @@ This audit follows `H:\DevWork\Files\DOCS\License-Policy-Audit-Checklist.md`. It
 
 1. Keep the root `LICENSE` and README license wording together.
 2. Do not publish binaries until dependency notices are included in the final artifact.
-3. Remove `services/api/venv/` from version control before a clean public release.
-4. Decide whether to replace or commercially license AGPL components (`PyMuPDF`, `ua-parser-js` v2) before distributing derivative builds.
-5. Re-run dependency license scanning after any dependency changes.
+3. Rewrite or commercially license the legacy `fitz`/PyMuPDF-based Python extraction code before using that service in a product.
+4. Re-run dependency license scanning after any dependency changes.
+5. For binary or Electron distribution, preserve dependency license files and notices, especially for LGPL/MPL/mixed-license packages.
 
 ## References
 

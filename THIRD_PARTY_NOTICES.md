@@ -8,9 +8,14 @@ This notice is a practical audit snapshot, not a complete legal opinion. Re-run 
 
 | Component | Where Detected | License Signal | Why It Matters |
 |---|---|---|---|
-| PyMuPDF / MuPDF | `services/api/requirements.txt`, `services/api/venv/` | GNU Affero GPL 3.0 | AGPL obligations can apply when distributing or offering network access to modified/combined software. Consider replacing it or obtaining a commercial license before shipping. |
-| `ua-parser-js` v2 | `backend/package.json`, `backend/package-lock.json`, root `package-lock.json` | AGPL-3.0-or-later | Review compatibility with an MIT-only distribution. Consider pinning/replacing with a permissively licensed alternative if needed. |
 | `@img/sharp-libvips-*` / `sharp` binary packages | `backend/package-lock.json`, root `package-lock.json` | LGPL-3.0-or-later and related mixed notices | Binary distribution must preserve notices and respect LGPL requirements. |
+
+## Resolved / Not Included in Install Manifests
+
+| Component | Previous Detection | Current Status |
+|---|---|---|
+| PyMuPDF / MuPDF | `services/api/requirements.txt`, checked-in `services/api/venv/` | Removed from install manifests and removed generated virtualenv artifacts from version control. Legacy Python files still import `fitz`; do not revive or ship that path unless rewritten for a permissive PDF library or covered by a commercial PyMuPDF license. |
+| `ua-parser-js` v2 | `backend/package.json`, `backend/package-lock.json`, root `package-lock.json` | Removed from package manifests and lockfiles; backend device parsing now uses local lightweight parsing code. |
 
 ## Other Notable Licenses
 
