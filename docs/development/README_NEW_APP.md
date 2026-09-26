@@ -238,7 +238,7 @@ python -c "
 from extraction_engine import PDFExtractor
 from excel_writer import ExcelWriter
 
-ext = PDFExtractor('../../docs/project/DataSample.pdf')
+ext = PDFExtractor('/path/to/your-own.pdf')  # no sample PDF is bundled; use your own
 print(f'Pages: {ext.page_count}')
 print(f'Digital: {ext.is_digital_pdf()}')
 ext.close()
@@ -327,7 +327,7 @@ alembic upgrade head
 
 For issues and questions:
 1. Check API documentation: http://localhost:8000/docs
-2. Review sample test PDF: `/docs/project/DataSample.pdf`
+2. Test with a PDF of your own (no sample document is bundled; the `samples/` folder is git-ignored for this)
 3. Run unit tests to verify setup
 4. Check worker logs for batch job errors
 

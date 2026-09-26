@@ -162,7 +162,7 @@ Syntaxis_AI/
 ├── docs/
 │   └── project/
 │       ├── New_Scope.md               # Original requirements
-│       └── DataSample.pdf             # Test PDF (226 pages)
+│       └── (test PDF not bundled)     # use your own PDF
 │
 ├── docker-compose.new.yml             # Full stack orchestration
 ├── README_NEW_APP.md                  # Main documentation
@@ -211,7 +211,7 @@ Syntaxis_AI/
 
 ## Test PDF Analysis
 
-**File**: `/docs/project/DataSample.pdf`
+**File**: a third-party sample report used during development (not included in the published repository; use your own PDF)
 - **Type**: Digital PDF (selectable text) ✓
 - **Pages**: 226
 - **Content**: Government financial report (Puducherry)
@@ -329,7 +329,7 @@ pytest test_extraction_engine.py test_excel_writer.py -v
 cd services/api
 python -c "
 from extraction_engine import PDFExtractor
-ext = PDFExtractor('../../docs/project/DataSample.pdf')
+ext = PDFExtractor('../../samples/your-own.pdf')
 print(f'Pages: {ext.page_count}')
 print(f'Digital PDF: {ext.is_digital_pdf()}')
 ext.close()

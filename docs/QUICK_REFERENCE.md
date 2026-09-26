@@ -26,14 +26,14 @@ chmod +x start.sh
 
 ## Test with Sample PDF
 
-Sample PDF location: `/docs/project/DataSample.pdf` (226 pages, government financial report)
+No sample PDF is bundled with the repository. Use a PDF of your own, for example placed in the git-ignored `samples/` folder.
 
 ```bash
 # Test extraction engine
 cd services/api
 python -c "
 from extraction_engine import PDFExtractor
-ext = PDFExtractor('../../docs/project/DataSample.pdf')
+ext = PDFExtractor('../../samples/your-own.pdf')
 print('Pages:', ext.page_count)
 print('Digital:', ext.is_digital_pdf())
 ext.close()
@@ -173,4 +173,4 @@ Check terminal output where services are running
 - Full Documentation: `/README_NEW_APP.md`
 - Implementation Summary: `/IMPLEMENTATION_SUMMARY.md`
 - Original Spec: `/docs/project/New_Scope.md`
-- Test PDF: `/docs/project/DataSample.pdf`
+- Test PDF: not bundled; use your own (see "Test with Sample PDF" above)

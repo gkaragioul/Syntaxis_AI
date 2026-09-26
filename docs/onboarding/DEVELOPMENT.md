@@ -13,8 +13,8 @@
 
 1. **Clone and Install Dependencies**
 ```bash
-git clone https://github.com/georgekgr12/syntaxisai.git
-cd syntaxisai
+git clone https://github.com/gkaragioul/Syntaxis_AI.git
+cd Syntaxis_AI
 
 # Install frontend dependencies
 cd frontend
