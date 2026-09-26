@@ -6,6 +6,10 @@ const fs = require('fs');
 
 const app = express();
 const PORT = 3001;
+// This server has no authentication, so it only listens on this machine by
+// default. Set PDF_CONVERTER_HOST (for example 0.0.0.0) to listen on other
+// interfaces, and only on a network you trust.
+const HOST = process.env.PDF_CONVERTER_HOST || '127.0.0.1';
 
 // Enable CORS
 app.use(cors());
@@ -57,7 +61,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // Serve React App (Optional, if we want single port)
 // app.use(express.static(path.join(__dirname, 'build')));
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
     console.log(`Uploads will be saved to: ${uploadDir}`);
 });

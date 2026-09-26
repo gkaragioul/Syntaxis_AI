@@ -21,7 +21,7 @@
 >
 > In `services/api/main.py`, `get_current_user` ignores whatever credentials a request sends and always returns one shared demo user (`demo@syntaxis.ai`), creating it if needed. Every request is treated as that user, so anyone who can reach the API can upload, read, export and delete every document, template and batch job.
 >
-> Related shortcuts elsewhere: the React frontend's auth hooks are stubbed ("free access mode"), and the `apps/pdf-converter` upload server accepts files from anyone with no authentication.
+> Related shortcuts elsewhere: the React frontend's auth hooks are stubbed ("free access mode"), and the `apps/pdf-converter` upload server has no authentication either. It listens only on `127.0.0.1` unless you set `PDF_CONVERTER_HOST`; do not point that at a network you do not control.
 >
 > Run it only on your own machine, bound to `127.0.0.1`, with test documents you are allowed to process.
 
@@ -77,15 +77,15 @@ npm run dev                            # http://localhost:3000
 ```bash
 cd apps/pdf-converter
 npm install
-npm run start:server   # upload server on :3001, saves to apps/pdf-converter/uploads/ (git-ignored)
+npm run start:server   # upload server on 127.0.0.1:3001, saves to apps/pdf-converter/uploads/ (git-ignored)
 npm start              # React app on :3000
 ```
 
-The upload server uses the same port as the Node backend, so do not run both at once.
+The upload server has no authentication, so it binds to `127.0.0.1` by default. To listen elsewhere you must opt in explicitly, e.g. `PDF_CONVERTER_HOST=0.0.0.0 npm run start:server`. It uses the same port as the Node backend, so do not run both at once.
 
 ### Tests
 
-The test suites were archived mid-refactor and many fail. Expect red, not green.
+The test suites were archived mid-refactor and many fail. Expect red, not green. For that reason the GitHub Actions workflow (`.github/workflows/ci.yml`) only runs when started manually (workflow_dispatch), not on every push or pull request.
 
 - Backend: `cd backend && npx jest --maxWorkers=2`. Most suites expect a running PostgreSQL/Redis or reference unfinished services; without them roughly 600 of about 1,400 tests pass. Four suites that re-ran the whole test suite through `npm test` are excluded in `backend/jest.config.js`; do not put them back.
 - Frontend: `cd frontend && npm test` (about 90 of 140 tests pass). With the committed lockfile, `jsdom` is installed only under `frontend/node_modules`, where the hoisted vitest cannot find it; hoist or link it first. `npm run build` works.
