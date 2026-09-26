@@ -85,9 +85,11 @@ The upload server uses the same port as the Node backend, so do not run both at 
 
 ### Tests
 
-- Backend: `cd backend && npx jest src/__tests__/unit`. Many other suites expect a running PostgreSQL/Redis or were never finished.
-- Frontend: `cd frontend && npm test`.
-- Python API: `cd services/api && pytest` (needs PyMuPDF and `httpx`).
+The test suites were archived mid-refactor and many fail. Expect red, not green.
+
+- Backend: `cd backend && npx jest --maxWorkers=2`. Most suites expect a running PostgreSQL/Redis or reference unfinished services; without them roughly 600 of about 1,400 tests pass. Four suites that re-ran the whole test suite through `npm test` are excluded in `backend/jest.config.js`; do not put them back.
+- Frontend: `cd frontend && npm test` (about 90 of 140 tests pass). With the committed lockfile, `jsdom` is installed only under `frontend/node_modules`, where the hoisted vitest cannot find it; hoist or link it first. `npm run build` works.
+- Python API: `pip install -r requirements-test.txt`, then `pytest` in `services/api` (needs PyMuPDF). The batch-pipeline API tests currently fail in the rate limiter because test requests carry no client address.
 - The treasury report parser test only runs when you give it a PDF: set `TREASURY_SAMPLE_PDF=/path/to/your.pdf` or place one at `samples/treasury-sample.pdf`.
 
 ## Legal And Licensing
