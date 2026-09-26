@@ -94,6 +94,14 @@ module.exports = {
     '/src/__tests__/auth/',
     '/src/__tests__/e2e/',
     '/src/__tests__/workers/',
+    // These suites shell out to `npm test` / `npm run test:coverage` (and
+    // `npm run format`, which rewrites sources). Run inside the normal suite
+    // they start the suite again, recursively, until the machine runs out of
+    // processes and memory. Keep them out of every default run.
+    '/src/__tests__/infrastructure/coverage-validation.test.ts',
+    '/src/__tests__/phase1/code-quality.test.ts',
+    '/src/__tests__/phase1/scripts.test.ts',
+    '/src/__tests__/phase1/testing-suite.test.ts',
   ],
   
   // Coverage path ignore patterns
