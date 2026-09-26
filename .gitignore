@@ -5,6 +5,11 @@ node_modules
 venv/
 .venv/
 services/api/venv/
+site-packages/
+pyvenv.cfg
+__pycache__/
+*.py[cod]
+.pytest_cache/
 
 # Testing
 coverage
@@ -49,13 +54,26 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Uploads
+# Uploads and generated outputs (user documents never belong in git)
 backend/uploads/*
 !backend/uploads/.gitkeep
+apps/pdf-converter/uploads/
+services/api/uploads/
+services/api/outputs/
 
 # Database
+*.db
+*.db-journal
 *.sqlite
 *.sqlite3
+
+# Kubernetes secrets: keep only *.example.yaml templates in git
+k8s/**/secrets.yaml
+k8s/**/*secret*.yaml
+!k8s/**/*.example.yaml
+
+# Your own sample PDFs for local testing
+samples/
 
 # Misc
 .cache
